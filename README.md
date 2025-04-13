@@ -1,7 +1,8 @@
-# Tauri + Vanilla
+# Простой генератор паролей. TAURI vanilla
 
-This template should help get you started developing with Tauri in vanilla HTML, CSS and Javascript.
+Генерирует пароль используя заданные параметры
+![изображение](https://github.com/user-attachments/assets/eb5abcd3-7bc6-40b4-b1a4-3296159e76a6)
 
-## Recommended IDE Setup
+## Рекомендации по сетапу
 
 - [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
