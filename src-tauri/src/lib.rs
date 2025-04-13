@@ -2,6 +2,16 @@
 
 
 use rand::prelude::*;
+use std::sync::Mutex;
+use std::io::Write;
+use std::fs::File;
+use std::io::prelude::*;
+use std::path::Path;
+use std::path::PathBuf;
+
+#[macro_use]
+extern crate lazy_static;
+
 
 #[derive(Debug, serde::Deserialize)]
 struct PasswordOptions {
@@ -11,6 +21,12 @@ struct PasswordOptions {
     numbers: bool,
     symbols: bool,
 }
+
+
+lazy_static! {
+static ref PASS_TRANSFER: Mutex<String> = Mutex::new(String::new());
+}
+
 
 #[tauri::command]
 fn generate_password(params: PasswordOptions) -> Result<String, String> {
@@ -29,15 +45,46 @@ fn generate_password(params: PasswordOptions) -> Result<String, String> {
         return Err("Должны быть выбраны хотябы какие-то текстовые характеристики".into());
     }
 
-    let password: String = (0..params.length)
+    let mut  password: String = (0..params.length)
         .map(|_| {
             let idx = rand::thread_rng().gen_range(0..charset.len());
             charset.chars().nth(idx).unwrap()
         })
         .collect();
-
-    Ok(password)
+  
+        let mut global_pass = PASS_TRANSFER.lock().unwrap();
+        *global_pass = password.clone(); 
+        
+        Ok(password)
+    
 }
+
+#[tauri::command]
+fn get_last_password_copy() -> Option<String> {
+    Some(PASS_TRANSFER.lock().unwrap().clone())
+}
+#[tauri::command]
+async fn save_to_file() -> Result<(), String> {
+    let pass = get_last_password_copy()
+        .ok_or("Нет пароля для сохранения".to_string())?;
+    
+    if pass.is_empty() {
+        return Err("Пароль пуст".to_string());
+    }
+
+   
+    
+    let file_path =  Path::new("saved_password.txt");
+
+   
+    File::create(&file_path)
+        .map_err(|e| format!("Не удалось создать файл: {}", e))?
+        .write_all(pass.as_bytes())
+        .map_err(|e| format!("Не удалось провести запись в файл: {}", e))?;
+
+    Ok(())
+}
+
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -45,7 +92,9 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
                    
-            generate_password 
+            generate_password,
+            get_last_password_copy,
+            save_to_file
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
