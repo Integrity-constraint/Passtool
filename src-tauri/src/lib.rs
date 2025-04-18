@@ -7,7 +7,8 @@ use std::io::Write;
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
-use std::path::PathBuf;
+
+use rusqlite::{params, Connection, Result};
 
 #[macro_use]
 extern crate lazy_static;
@@ -22,6 +23,11 @@ struct PasswordOptions {
     symbols: bool,
 }
 
+#[derive(Debug, serde::Deserialize)]
+struct Resource_Passwords{
+Res_name: String,
+The_password: String
+}
 
 lazy_static! {
 static ref PASS_TRANSFER: Mutex<String> = Mutex::new(String::new());
@@ -34,7 +40,9 @@ fn generate_password(params: PasswordOptions) -> Result<String, String> {
     if params.length < 4 {
         return Err("Пароль не может быть короче  4 символов".into());
     }
-
+    if params.length > 100 {
+        return Err("слишком много символов".into());
+    }
     let mut charset = String::new();
     if params.uppercase { charset.push_str("ABCDEFGHIJKLMNOPQRSTUVWXYZ"); }
     if params.lowercase { charset.push_str("abcdefghijklmnopqrstuvwxyz"); }
@@ -85,16 +93,43 @@ async fn save_to_file() -> Result<(), String> {
     Ok(())
 }
 
+#[tauri::command]
+fn add_entry(resource: String, password: String) -> Result<(), String> {
+    let conn = Connection::open("pass_tool.db").map_err(|e| e.to_string())?;
+    conn.execute(
+        "INSERT INTO Passwords (Res_name, the_password) VALUES (?1, ?2)",
+        [&resource, &password],
+    ).map_err(|e| e.to_string())?;
+    Ok(())
+}
+#[tauri::command]
+fn create_bd() -> Result<(), String> {
+    let conn = Connection::open("pass_tool.db").map_err(|e| e.to_string())?;
+    
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS Passwords (
+            id INTEGER PRIMARY KEY,
+            Res_name TEXT NOT NULL,
+            the_password TEXT NOT NULL
+        )",
+        [],
+    ).map_err(|e| e.to_string())?;
+
+    Ok(())
+}
+
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
-                   
+          
             generate_password,
             get_last_password_copy,
-            save_to_file
+            save_to_file, create_bd
+          
+          
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
