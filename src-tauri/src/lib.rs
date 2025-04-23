@@ -16,7 +16,7 @@ extern crate lazy_static;
 
 #[derive(Debug, serde::Deserialize)]
 struct PasswordOptions {
-    length: usize,
+    length: i16,
     uppercase: bool,
     lowercase: bool,
     numbers: bool,
@@ -104,7 +104,7 @@ pub fn run() {
             generate_password,
             get_last_password_copy,
             save_to_file, 
-           // create_database
+          
           
           
         ])

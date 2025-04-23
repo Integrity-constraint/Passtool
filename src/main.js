@@ -1,5 +1,15 @@
 const { invoke } = window.__TAURI__.core;
 
+const appWindow = invoke;
+document
+  .getElementById('titlebar-minimize')
+  ?.addEventListener('click', () => appWindow.minimize());
+document
+  .getElementById('titlebar-maximize')
+  ?.addEventListener('click', () => appWindow.toggleMaximize());
+document
+  .getElementById('titlebar-close')
+  ?.addEventListener('click', () => appWindow.close());
 
 document.getElementById('generate-btn').addEventListener('click', async () => {
   const params = {
@@ -82,3 +92,6 @@ document.getElementById('btn-crud-save').addEventListener('click', async () => {
 
     alert("Данные сохранены в SQLite!");
 });
+
+
+
