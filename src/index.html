@@ -8,6 +8,21 @@
     
 </head>
 <body>
+    <div class="modal" id="save-modal">
+        <div class="modal-content">
+            <h3>Сохранить пароль</h3>
+            <div class="input-group">
+                <label>Название сервиса:</label>
+                <input type="text" id="service-name" placeholder="Сервис">
+            </div>
+            <div class="password-output" id="password-to-save"></div>
+            <div class="modal-actions">
+                <button id="cancel-save">Отмена</button>
+                <button id="confirm-save">Сохранить</button>
+            </div>
+        </div>
+    </div>
+
     <div data-tauri-drag-region class="titlebar">
         <div class="titlebar-button" id="titlebar-minimize">
           <img
@@ -33,7 +48,7 @@
         </div>
         <div class="drawer-content" id="navigation">
         
-            <button onclick="window.location.href='PasswordList.html'">Все пароли</button>
+        
         </div>
     </div>
     <div class="drawer-overlay" id="drawer-overlay"></div>
@@ -79,12 +94,22 @@
         
             <button id="generate-btn">Сгенерировать пароль</button>
             <div class="password-output" id="password"></div>
-
-            <button id="save-btn">Сохранить пароль</button>
+<div >
+    <button id="save-btn">Сохранить пароль в файл</button>
+    <button id="saveToList-btn">Сохранить пароль в список</button>
+</div>
+            
             <div class="password-output-save" id="password-save"></div>
            
         </div>
        
+
+        <div class="expander">
+            <button class="expander-button">Нажми для раскрытия</button>
+            <div class="expander-content">
+             <button id="BD-button" style="height: 20px;">Создать БД паролей?</button>
+            </div>
+          </div>
         
        
     </div>

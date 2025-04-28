@@ -23,11 +23,8 @@ struct PasswordOptions {
     symbols: bool,
 }
 
-#[derive(Debug, serde::Deserialize)]
-struct Resource_Passwords{
-Res_name: String,
-The_password: String
-}
+
+
 
 lazy_static! {
 static ref PASS_TRANSFER: Mutex<String> = Mutex::new(String::new());
@@ -103,10 +100,7 @@ pub fn run() {
           
             generate_password,
             get_last_password_copy,
-            save_to_file, 
-          
-          
-          
+            save_to_file,      
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
